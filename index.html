@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Website Quiz</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #111;
+            color: white;
+            min-height: 100vh;
+        }
+
+        /* =========================
+           MAIN WEBSITE
+        ========================= */
+
+        #website {
+            min-height: 100vh;
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        #website h1 {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        /* =========================
+           QUIZ POPUP
+        ========================= */
+
+        .quiz-overlay {
+            position: fixed;
+            inset: 0;
+
+            background: rgba(0, 0, 0, 0.85);
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            z-index: 9999;
+        }
+
+        .quiz-box {
+            width: 90%;
+            max-width: 500px;
+
+            background: #1c1c1c;
+
+            padding: 35px;
+
+            border-radius: 20px;
+
+            text-align: center;
+
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+        }
+
+        .quiz-box h2 {
+            font-size: 24px;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .options {
+            display: flex;
+            gap: 15px;
+        }
+
+        .options button {
+            flex: 1;
+
+            padding: 15px;
+
+            border: none;
+
+            border-radius: 10px;
+
+            font-size: 16px;
+            font-weight: bold;
+
+            cursor: pointer;
+
+            background: white;
+            color: black;
+
+            transition: 0.2s;
+        }
+
+        .options button:hover {
+            transform: scale(1.04);
+        }
+
+
+        /* =========================
+           ADMIN PANEL
+        ========================= */
+
+        #adminPanel {
+            min-height: 100vh;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            padding: 20px;
+        }
+
+        .admin-box {
+            width: 100%;
+            max-width: 500px;
+
+            background: #1c1c1c;
+
+            padding: 35px;
+
+            border-radius: 20px;
+        }
+
+        .admin-box h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+
+            margin-top: 20px;
+            margin-bottom: 8px;
+
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+
+            padding: 14px;
+
+            border: none;
+
+            border-radius: 8px;
+
+            font-size: 16px;
+        }
+
+        .publish-btn {
+            width: 100%;
+
+            margin-top: 25px;
+
+            padding: 15px;
+
+            border: none;
+
+            border-radius: 10px;
+
+            background: white;
+
+            color: black;
+
+            font-size: 16px;
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        #message {
+            text-align: center;
+
+            margin-top: 20px;
+
+            color: #4cff88;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+    </style>
+</head>
+
+<body>
+
+
+    <!-- =========================
+         MAIN WEBSITE
+    ========================= -->
+
+    <div id="website">
+
+        <h1>Welcome to My Website</h1>
+
+        <p>Your website content goes here.</p>
+
+    </div>
+
+
+
+    <!-- =========================
+         QUIZ POPUP
+    ========================= -->
+
+    <div id="quizOverlay" class="quiz-overlay hidden">
+
+        <div class="quiz-box">
+
+            <h2 id="quizQuestion">
+                Loading...
+            </h2>
+
+            <div class="options">
+
+                <button id="yesButton">
+                    Yes
+                </button>
+
+                <button id="noButton">
+                    No
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <!-- =========================
+         ADMIN PANEL
+    ========================= -->
+
+    <div id="adminPanel" class="hidden">
+
+        <div class="admin-box">
+
+            <h1>Quiz Admin</h1>
+
+
+            <label>Question</label>
+
+            <input
+                id="questionInput"
+                type="text"
+                placeholder="Enter your question"
+            >
+
+
+            <label>First Option</label>
+
+            <input
+                id="yesInput"
+                type="text"
+                value="Yes"
+            >
+
+
+            <label>Second Option</label>
+
+            <input
+                id="noInput"
+                type="text"
+                value="No"
+            >
+
+
+            <button class="publish-btn" onclick="publishQuiz()">
+
+                Publish Quiz
+
+            </button>
+
+
+            <p id="message"></p>
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+
+        // Check current URL
+        const path = window.location.pathname;
+
+
+        // =========================
+        // ADMIN PAGE
+        // =========================
+
+        if (path === "/admin" || path === "/admin/") {
+
+            // Hide website
+            document.getElementById("website")
+                .classList.add("hidden");
+
+            // Show admin
+            document.getElementById("adminPanel")
+                .classList.remove("hidden");
+
+
+            // Load existing quiz
+            const savedQuiz = JSON.parse(
+                localStorage.getItem("websiteQuiz")
+            );
+
+
+            if (savedQuiz) {
+
+                document.getElementById("questionInput").value =
+                    savedQuiz.question;
+
+                document.getElementById("yesInput").value =
+                    savedQuiz.yes;
+
+                document.getElementById("noInput").value =
+                    savedQuiz.no;
+
+            }
+
+        }
+
+
+        // =========================
+        // MAIN WEBSITE
+        // =========================
+
+        else {
+
+            const quiz = JSON.parse(
+                localStorage.getItem("websiteQuiz")
+            );
+
+
+            if (quiz) {
+
+                document.getElementById("quizQuestion").textContent =
+                    quiz.question;
+
+                document.getElementById("yesButton").textContent =
+                    quiz.yes;
+
+                document.getElementById("noButton").textContent =
+                    quiz.no;
+
+
+                // Show quiz automatically
+                document.getElementById("quizOverlay")
+                    .classList.remove("hidden");
+
+            }
+
+        }
+
+
+
+        // =========================
+        // PUBLISH QUIZ
+        // =========================
+
+        function publishQuiz() {
+
+            const question =
+                document.getElementById("questionInput")
+                .value
+                .trim();
+
+
+            const yes =
+                document.getElementById("yesInput")
+                .value
+                .trim();
+
+
+            const no =
+                document.getElementById("noInput")
+                .value
+                .trim();
+
+
+            if (!question) {
+
+                alert("Please enter a question!");
+
+                return;
+
+            }
+
+
+            const quiz = {
+
+                question: question,
+
+                yes: yes || "Yes",
+
+                no: no || "No"
+
+            };
+
+
+            // Save quiz
+            localStorage.setItem(
+                "websiteQuiz",
+                JSON.stringify(quiz)
+            );
+
+
+            document.getElementById("message").textContent =
+                "Quiz published successfully!";
+
+
+            // Redirect to main website after 1.5 seconds
+            setTimeout(() => {
+
+                window.location.href = "/";
+
+            }, 1500);
+
+        }
+
+
+
+        // =========================
+        // QUIZ ANSWERS
+        // =========================
+
+        document.getElementById("yesButton").onclick = function () {
+
+            document.getElementById("quizOverlay")
+                .classList.add("hidden");
+
+            console.log("User selected YES");
+
+        };
+
+
+        document.getElementById("noButton").onclick = function () {
+
+            document.getElementById("quizOverlay")
+                .classList.add("hidden");
+
+            console.log("User selected NO");
+
+        };
+
+    </script>
+
+</body>
+</html>
