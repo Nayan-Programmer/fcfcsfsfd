@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Quiz Admin</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            padding: 20px;
+        }
+
+        .admin-box {
+            width: 100%;
+            max-width: 600px;
+
+            background: white;
+
+            padding: 30px;
+
+            border-radius: 16px;
+
+            box-shadow:
+                0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+
+            margin-top: 15px;
+            margin-bottom: 7px;
+
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+
+            padding: 13px;
+
+            border: 1px solid #ccc;
+
+            border-radius: 8px;
+
+            font-size: 15px;
+
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #111;
+        }
+
+        .publish-btn {
+            width: 100%;
+
+            margin-top: 25px;
+
+            padding: 14px;
+
+            border: none;
+
+            border-radius: 10px;
+
+            background: #111;
+
+            color: white;
+
+            font-size: 16px;
+
+            cursor: pointer;
+        }
+
+        .publish-btn:hover {
+            background: #333;
+        }
+
+        .results {
+            margin-top: 35px;
+
+            padding-top: 25px;
+
+            border-top: 1px solid #ddd;
+        }
+
+        .results h2 {
+            margin-bottom: 15px;
+        }
+
+        .stats {
+            display: flex;
+
+            gap: 15px;
+        }
+
+        .stat-box {
+            flex: 1;
+
+            background: #f5f5f5;
+
+            padding: 20px;
+
+            border-radius: 10px;
+
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 14px;
+
+            font-weight: bold;
+
+            text-transform: uppercase;
+        }
+
+        .stat-number {
+            font-size: 32px;
+
+            font-weight: bold;
+
+            margin-top: 8px;
+        }
+
+        .status {
+            margin-top: 20px;
+
+            text-align: center;
+
+            color: #555;
+
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="admin-box">
+
+        <h1>Quiz Admin</h1>
+
+
+        <!-- QUESTION -->
+
+        <label for="questionInput">
+            Question
+        </label>
+
+        <input
+            type="text"
+            id="questionInput"
+            placeholder="Enter your question"
+        >
+
+
+        <!-- FIRST OPTION -->
+
+        <label for="yesInput">
+            First Option
+        </label>
+
+        <input
+            type="text"
+            id="yesInput"
+            value="Yes"
+        >
+
+
+        <!-- SECOND OPTION -->
+
+        <label for="noInput">
+            Second Option
+        </label>
+
+        <input
+            type="text"
+            id="noInput"
+            value="No"
+        >
+
+
+        <!-- PUBLISH -->
+
+        <button
+            class="publish-btn"
+            onclick="publishQuiz()"
+        >
+            Publish Quiz
+        </button>
+
+
+        <!-- RESULTS -->
+
+        <div class="results">
+
+            <h2>Results</h2>
+
+            <div class="stats">
+
+                <div class="stat-box">
+
+                    <div
+                        class="stat-label"
+                        id="yesLabel"
+                    >
+                        YES
+                    </div>
+
+                    <div
+                        class="stat-number"
+                        id="yesCount"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+
+                <div class="stat-box">
+
+                    <div
+                        class="stat-label"
+                        id="noLabel"
+                    >
+                        NO
+                    </div>
+
+                    <div
+                        class="stat-number"
+                        id="noCount"
+                    >
+                        0
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div
+            class="status"
+            id="status"
+        >
+            No quiz published yet.
+        </div>
+
+    </div>
+
+
+    <script>
+
+        /*
+        =====================================
+        QUIZ DATA
+        =====================================
+        */
+
+        let quizData = {
+
+            question: "",
+
+            yesText: "Yes",
+
+            noText: "No",
+
+            yesCount: 0,
+
+            noCount: 0
+
+        };
+
+
+        /*
+        =====================================
+        LOAD QUIZ
+        =====================================
+        */
+
+        function loadQuiz() {
+
+            const savedQuiz =
+                localStorage.getItem("quizData");
+
+
+            if (!savedQuiz) {
+
+                return;
+
+            }
+
+
+            try {
+
+                quizData =
+                    JSON.parse(savedQuiz);
+
+            } catch (error) {
+
+                console.log(
+                    "Could not load quiz."
+                );
+
+                return;
+
+            }
+
+
+            document.getElementById(
+                "questionInput"
+            ).value =
+                quizData.question || "";
+
+
+            document.getElementById(
+                "yesInput"
+            ).value =
+                quizData.yesText || "Yes";
+
+
+            document.getElementById(
+                "noInput"
+            ).value =
+                quizData.noText || "No";
+
+
+            updateResults();
+
+        }
+
+
+        /*
+        =====================================
+        PUBLISH QUIZ
+        =====================================
+        */
+
+        function publishQuiz() {
+
+            const question =
+                document.getElementById(
+                    "questionInput"
+                ).value.trim();
+
+
+            const yesText =
+                document.getElementById(
+                    "yesInput"
+                ).value.trim();
+
+
+            const noText =
+                document.getElementById(
+                    "noInput"
+                ).value.trim();
+
+
+            if (!question) {
+
+                alert(
+                    "Please enter a question."
+                );
+
+                return;
+
+            }
+
+
+            if (!yesText) {
+
+                alert(
+                    "Please enter the first option."
+                );
+
+                return;
+
+            }
+
+
+            if (!noText) {
+
+                alert(
+                    "Please enter the second option."
+                );
+
+                return;
+
+            }
+
+
+            quizData = {
+
+                question: question,
+
+                yesText: yesText,
+
+                noText: noText,
+
+                yesCount: 0,
+
+                noCount: 0
+
+            };
+
+
+            localStorage.setItem(
+                "quizData",
+                JSON.stringify(quizData)
+            );
+
+
+            updateResults();
+
+
+            document.getElementById(
+                "status"
+            ).textContent =
+                "Quiz published successfully.";
+
+        }
+
+
+        /*
+        =====================================
+        UPDATE RESULTS
+        =====================================
+        */
+
+        function updateResults() {
+
+            document.getElementById(
+                "yesLabel"
+            ).textContent =
+                (quizData.yesText || "Yes")
+                    .toUpperCase();
+
+
+            document.getElementById(
+                "noLabel"
+            ).textContent =
+                (quizData.noText || "No")
+                    .toUpperCase();
+
+
+            document.getElementById(
+                "yesCount"
+            ).textContent =
+                quizData.yesCount || 0;
+
+
+            document.getElementById(
+                "noCount"
+            ).textContent =
+                quizData.noCount || 0;
+
+
+            if (quizData.question) {
+
+                document.getElementById(
+                    "status"
+                ).textContent =
+                    "Quiz is currently published.";
+
+            }
+
+        }
+
+
+        /*
+        =====================================
+        AUTO REFRESH RESULTS
+        =====================================
+        */
+
+        setInterval(function () {
+
+            const savedQuiz =
+                localStorage.getItem("quizData");
+
+
+            if (!savedQuiz) {
+
+                return;
+
+            }
+
+
+            try {
+
+                quizData =
+                    JSON.parse(savedQuiz);
+
+                updateResults();
+
+            } catch (error) {
+
+                console.log(
+                    "Unable to refresh results."
+                );
+
+            }
+
+        }, 1000);
+
+
+        /*
+        =====================================
+        START
+        =====================================
+        */
+
+        loadQuiz();
+
+    </script>
+
+</body>
+</html>
